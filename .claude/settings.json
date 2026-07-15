@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx vite *)",
+      "Read(//tmp/**)",
+      "Bash(curl -s http://localhost:5183/login)",
+      "Skill(run)",
+      "Skill(run:*)",
+      "Bash(chromium-cli --version)",
+      "Bash(npx --yes playwright --version)",
+      "Bash(node check-login.mjs)",
+      "Bash(node check-login-interactive.mjs)",
+      "Bash(taskkill //F //IM node.exe //FI \"WINDOWTITLE eq *vite*\")",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/tailwindcss/package.json'\\).version\\)\")",
+      "Bash(timeout 20 bash -c 'until curl -sf http://localhost:5183 >/dev/null; do sleep 0.5; done')",
+      "Bash(node check-tailwind.mjs)",
+      "Bash(node check-dashboard-nav.mjs)",
+      "Bash(node check-dashboard-mobile2.mjs)",
+      "Bash(node check-landing.mjs)",
+      "Bash(npm --version)",
+      "Bash(npm approve-scripts *)",
+      "Bash(npm help *)",
+      "Bash(npx prisma *)",
+      "Bash(git check-ignore *)"
+    ]
+  }
+}
