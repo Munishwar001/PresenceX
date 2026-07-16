@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { Mail01Icon, LockIcon, EyeIcon, EyeOffIcon } from "@hugeicons/core-free-icons";
 import { useAuthStore } from "../store/auth.store";
 import StrokeIcon from "../components/ui/icon/icon";
-import { Spinner } from "../components/ui/Spinner";
+import { Spinner } from "../components/ui/spinner";
 
 interface FormErrors {
   email?: string;

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router";
 import { useAuthStore } from "../../store/auth.store";
-import { Spinner } from "../ui/Spinner";
+import { Spinner } from "../ui/spinner";
 
 export default function ProtectedRoute() {
   const user = useAuthStore((state) => state.user);

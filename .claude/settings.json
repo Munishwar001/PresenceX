@@ -35,7 +35,8 @@
       "Bash(xargs grep -l \"HugeiconsIcon\")",
       "Bash(git -C /c/Users/Admin/Desktop/Munishwar/PresenceX status --porcelain -- frontend/src/store frontend/src/pages)",
       "Skill(code-review)",
-      "Skill(code-review:*)"
+      "Skill(code-review:*)",
+      "Bash(timeout 60 npx vite build)"
     ],
     "additionalDirectories": [
       "\\tmp"
