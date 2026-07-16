@@ -23,7 +23,22 @@
       "Bash(npx prisma *)",
       "Bash(git check-ignore *)",
       "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(48\\).toString\\('hex'\\)\\)\")",
-      "Bash(node -e \"console.log\\(require\\('zod/package.json'\\).version\\)\")"
+      "Bash(node -e \"console.log\\(require\\('zod/package.json'\\).version\\)\")",
+      "Bash(rm -rf /tmp/pxtsbuild 2>/dev/null; npx tsc -b --force 2>&1 | head -100)",
+      "Bash(timeout 12 npx vite build)",
+      "Bash(node -e \"console.log\\(require\\('axios/package.json'\\).version\\)\")",
+      "Bash(git -C /c/Users/Admin/Desktop/Munishwar/PresenceX log --all --oneline -- package.json package-lock.json)",
+      "Bash(git -C /c/Users/Admin/Desktop/Munishwar/PresenceX status --porcelain -- package.json package-lock.json)",
+      "Bash(rm -f package.json package-lock.json)",
+      "Bash(rm -rf node_modules)",
+      "Bash(grep -iE \"^\\\\s*\\(Square\\)?Lock[0-9]*Icon$\")",
+      "Bash(xargs grep -l \"HugeiconsIcon\")",
+      "Bash(git -C /c/Users/Admin/Desktop/Munishwar/PresenceX status --porcelain -- frontend/src/store frontend/src/pages)",
+      "Skill(code-review)",
+      "Skill(code-review:*)"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
     ]
   }
 }

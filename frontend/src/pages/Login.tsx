@@ -1,5 +1,9 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
+import { Mail01Icon, LockIcon, EyeIcon, EyeOffIcon } from "@hugeicons/core-free-icons";
+import { useAuthStore } from "../store/auth.store";
+import StrokeIcon from "../components/ui/icon/icon";
+import { Spinner } from "../components/ui/Spinner";
 
 interface FormErrors {
   email?: string;
@@ -8,14 +12,34 @@ interface FormErrors {
 
 export default function Login() {
   const navigate = useNavigate();
+  const login = useAuthStore((state) => state.login);
+  const refresh = useAuthStore((state) => state.refresh);
+  const loading = useAuthStore((state) => state.loading);
 
+  const [checkingSession, setCheckingSession] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [formError, setFormError] = useState("");
-  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    refresh().then((success) => {
+      if (cancelled) return;
+      if (success) {
+        navigate("/dashboard");
+      } else {
+        setCheckingSession(false);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [refresh, navigate]);
 
   const validate = () => {
     const nextErrors: FormErrors = {};
@@ -42,25 +66,21 @@ export default function Login() {
 
     if (!validate()) return;
 
-    setLoading(true);
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, remember }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Invalid email or password");
-      }
-
+    const success = await login(email, password);
+    if (success) {
       navigate("/dashboard");
-    } catch (err) {
-      setFormError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
+    } else {
+      setFormError(useAuthStore.getState().error ?? "Something went wrong. Please try again.");
     }
   };
+
+  if (checkingSession) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white">
+        <Spinner className="h-8 w-8 animate-spin rounded-full border-2 border-brand-100 border-t-brand-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="grid min-h-screen grid-cols-1 bg-white md:grid-cols-2">
@@ -117,7 +137,7 @@ export default function Login() {
                 errors.email ? "border-red-400" : "border-ink-100"
               }`}
             >
-              <MailIcon className="shrink-0 text-ink-300" />
+              <StrokeIcon icon={Mail01Icon} className="shrink-0 text-ink-300" size={18} strokeWidth={1.8} />
               <input
                 id="email"
                 type="email"
@@ -145,7 +165,7 @@ export default function Login() {
                 errors.password ? "border-red-400" : "border-ink-100"
               }`}
             >
-              <LockIcon className="shrink-0 text-ink-300" />
+              <StrokeIcon icon={LockIcon} className="shrink-0 text-ink-300" size={18} strokeWidth={1.8} />
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
@@ -161,7 +181,11 @@ export default function Login() {
                 onClick={() => setShowPassword((prev) => !prev)}
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                {showPassword ? (
+                  <StrokeIcon icon={EyeOffIcon} size={18} strokeWidth={1.8} />
+                ) : (
+                  <StrokeIcon icon={EyeIcon} size={18} strokeWidth={1.8} />
+                )}
               </button>
             </div>
             {errors.password && <span className="text-xs text-red-500">{errors.password}</span>}
@@ -187,50 +211,5 @@ export default function Login() {
         </form>
       </div>
     </div>
-  );
-}
-
-function MailIcon({ className }: { className?: string }) {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <rect x="2" y="4" width="20" height="16" rx="2" />
-      <path d="m22 6-10 7L2 6" />
-    </svg>
-  );
-}
-
-function LockIcon({ className }: { className?: string }) {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <rect x="3" y="11" width="18" height="10" rx="2" />
-      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-    </svg>
-  );
-}
-
-function EyeIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-}
-
-function EyeOffIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a13.16 13.16 0 0 1-3.16 3.94M6.61 6.61A13.5 13.5 0 0 0 1 11s4 7 11 7a9.26 9.26 0 0 0 5.39-1.61M1 1l22 22" />
-      <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" />
-    </svg>
-  );
-}
-
-function Spinner() {
-  return (
-    <span
-      className="h-[18px] w-[18px] animate-spin rounded-full border-2 border-white/40 border-t-white"
-      aria-hidden="true"
-    />
   );
 }

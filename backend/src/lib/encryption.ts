@@ -1,5 +1,11 @@
 import bcrypt from "bcryptjs";
+import { createHash } from "node:crypto";
+
 const passRound = 3;
+
+export const hashToken = (token: string) => {
+  return createHash("sha256").update(token).digest("hex");
+};
 
 export const bcryptPass = async (string: string) => {
   const salt = await bcrypt.genSalt(passRound);
