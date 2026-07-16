@@ -21,7 +21,9 @@
       "Bash(npm approve-scripts *)",
       "Bash(npm help *)",
       "Bash(npx prisma *)",
-      "Bash(git check-ignore *)"
+      "Bash(git check-ignore *)",
+      "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(48\\).toString\\('hex'\\)\\)\")",
+      "Bash(node -e \"console.log\\(require\\('zod/package.json'\\).version\\)\")"
     ]
   }
 }

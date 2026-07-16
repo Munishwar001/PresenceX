@@ -1,5 +1,5 @@
 import express from "express";
-import { authRouter } from "./v1/auth/index.js";
+import { router } from "./v1/auth/index.js";
 
 export const app = express();
 
@@ -10,6 +10,6 @@ app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
 
-app.use("/api/v1/auth", authRouter);
+app.use("/api/v1", router);
 
 export default app;
