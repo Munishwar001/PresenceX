@@ -32,7 +32,6 @@ import {
   Code,
   Network,
   Cpu,
-  Database
 } from "lucide-react";
 
 interface StudentAttendance {
@@ -138,9 +137,9 @@ export default function Landing() {
   const [scanningStudent, setScanningStudent] = useState<typeof SIMULATED_POOL[0] | null>(null);
 
   const [logs, setLogs] = useState<string[]>([
-    "Gateway online at port 8080",
-    "Prisma db connection verified",
-    "Listening for WebSocket handshakes on /stream"
+    "System ready — attendance tracking online",
+    "Student database connected successfully",
+    "Waiting for session to start..."
   ]);
 
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -196,7 +195,7 @@ export default function Landing() {
           if (prev <= 1) {
             const newToken = "PX-" + Math.floor(100 + Math.random() * 900) + "-" + Math.random().toString(36).substring(2, 5).toUpperCase();
             setQrToken(newToken);
-            setLogs(prevLogs => [...prevLogs.slice(-8), `Rotated secret key to [${newToken}] (expires in ${qrExpirySlider}s)`]);
+            setLogs(prevLogs => [...prevLogs.slice(-8), `QR code refreshed → [${newToken}] (valid for ${qrExpirySlider}s)`]);
             return qrExpirySlider;
           }
           return prev - 1;
@@ -210,15 +209,15 @@ export default function Landing() {
     setSessionActive(true);
     setTimeLeft(qrExpirySlider);
     setLogs([
-      "WS: Connection established on /session/cs-401",
-      `Room cs-401: Attendance session initialized with token ${qrToken}`
+      "Session started — students can now scan the QR code",
+      `Active QR code: ${qrToken} — refreshes every ${qrExpirySlider}s`
     ]);
   };
 
   const handleStopSession = () => {
     setSessionActive(false);
     setScanStep("idle");
-    setLogs(prev => [...prev.slice(-8), "Session terminated by instructor."]);
+    setLogs(prev => [...prev.slice(-8), "Session ended by teacher. No more check-ins accepted."]);
   };
 
   const handleSimulateScan = () => {
@@ -228,26 +227,26 @@ export default function Landing() {
     const available = SIMULATED_POOL.filter(s => !checkedInNames.includes(s.name));
 
     if (available.length === 0) {
-      setLogs(prev => [...prev.slice(-8), "SIMULATOR: No more test students available."]);
+      setLogs(prev => [...prev.slice(-8), "All students have already been marked present."]);
       return;
     }
 
     const randomStudent = available[Math.floor(Math.random() * available.length)];
     setScanningStudent(randomStudent);
     setScanStep("scanning");
-    setLogs(prev => [...prev.slice(-8), `WS: Received check-in request from Device:${randomStudent.rollNo}`]);
+    setLogs(prev => [...prev.slice(-8), `${randomStudent.name} is scanning the QR code...`]);
 
     setTimeout(() => {
       setScanStep("geofencing");
-      setLogs(prev => [...prev.slice(-8), `CHECK: GPS coordinates matched class geofence range (offset: 1.4m)`]);
+      setLogs(prev => [...prev.slice(-8), `✓ Location verified — student is within ${geofenceSlider}m of the classroom`]);
 
       setTimeout(() => {
         setScanStep("wifi");
-        setLogs(prev => [...prev.slice(-8), `CHECK: Access Point BSSID matches campus local network`]);
+        setLogs(prev => [...prev.slice(-8), "✓ Connected to campus Wi-Fi — network verified"]);
 
         setTimeout(() => {
           setScanStep("face");
-          setLogs(prev => [...prev.slice(-8), `CHECK: Device fingerprint bound to student profile`]);
+          setLogs(prev => [...prev.slice(-8), "✓ Identity confirmed — device matches student profile"]);
 
           setTimeout(() => {
             setScanStep("success");
@@ -266,7 +265,7 @@ export default function Landing() {
             setStudents(prev => [newRecord, ...prev]);
             setLogs(prev => [
               ...prev.slice(-8),
-              `WRITE: Checked in ${randomStudent.name} at ${timeString} [Success]`
+              `🎉 ${randomStudent.name} marked Present at ${timeString}`
             ]);
 
             setTimeout(() => {
@@ -306,9 +305,10 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-[#faf9f6] text-[#1c1a22] font-sans antialiased selection:bg-purple-600 selection:text-white overflow-x-hidden">
 
-      {/* Header - Floating Glassmorphism Pill */}
-      <header className="sticky top-4 z-50 mx-auto max-w-6xl px-4 select-none">
-        <div className="bg-[#faf9f6]/75 backdrop-blur-xl border border-black/5 rounded-2xl shadow-xs px-6 py-3.5 flex items-center justify-between transition-all duration-300">
+      {/* Header - Full-width sticky navbar */}
+      <header className="fixed top-0 left-0 right-0 z-50 px-4 pt-4 pointer-events-none select-none">
+        <div className="mx-auto max-w-6xl pointer-events-auto">
+          <div className="bg-[#faf9f6]/85 backdrop-blur-xl border border-black/8 rounded-2xl shadow-sm px-6 py-3.5 flex items-center justify-between transition-all duration-300">
 
           {/* Logo & Platform Name */}
           <div className="flex items-center gap-3">
@@ -328,14 +328,14 @@ export default function Landing() {
               href="#sandbox"
               className="relative py-1 transition-colors hover:text-[#1c1a22] group"
             >
-              Sandbox
+              Live Demo
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-purple-600 transition-all duration-300 group-hover:w-full" />
             </a>
             <a
               href="#configurator"
               className="relative py-1 transition-colors hover:text-[#1c1a22] group"
             >
-              Portal Config
+              Settings
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-purple-600 transition-all duration-300 group-hover:w-full" />
             </a>
             <a
@@ -369,8 +369,12 @@ export default function Landing() {
               <span>&gt;_</span> DEPLOY
             </Link>
           </div>
+          </div>
         </div>
       </header>
+
+      {/* Spacer for fixed navbar */}
+      <div className="h-20" />
 
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center justify-center py-12 border-b border-black/5 overflow-hidden bg-[#faf9f6]">
@@ -450,30 +454,30 @@ export default function Landing() {
 
           {activeBlip === "rahul" && (
             <div className="absolute top-[47%] left-[12%] bg-[#121016] text-white p-2.5 rounded-lg shadow-lg text-[9px] font-mono z-30 w-40 border border-purple-500/20">
-              <p className="font-bold text-emerald-400 flex items-center gap-1"><UserCheck className="w-3 h-3" /> VERIFIED BEACON</p>
+              <p className="font-bold text-emerald-400 flex items-center gap-1"><UserCheck className="w-3 h-3" /> ATTENDANCE MARKED ✓</p>
               <p className="mt-1">Student: Rahul Sharma</p>
-              <p>ID: CS24B102</p>
-              <p>Geofence Offset: 1.4m</p>
+              <p>Roll No: CS24B102</p>
+              <p>Distance from class: 1.4m</p>
             </div>
           )}
 
           {activeBlip === "pooja" && (
             <div className="absolute bottom-[16%] right-[16%] bg-[#121016] text-white p-2.5 rounded-lg shadow-lg text-[9px] font-mono z-30 w-40 border border-purple-500/20">
-              <p className="font-bold text-emerald-400 flex items-center gap-1"><UserCheck className="w-3 h-3" /> VERIFIED BEACON</p>
+              <p className="font-bold text-emerald-400 flex items-center gap-1"><UserCheck className="w-3 h-3" /> ATTENDANCE MARKED ✓</p>
               <p className="mt-1">Student: Pooja Patel</p>
-              <p>ID: CS24B145</p>
-              <p>Geofence Offset: 2.1m</p>
+              <p>Roll No: CS24B145</p>
+              <p>Distance from class: 2.1m</p>
             </div>
           )}
 
           {activeBlip === "proxy" && (
             <div className="absolute top-[10%] right-[3%] bg-[#121016] text-white p-2.5 rounded-lg shadow-lg text-[9px] font-mono z-30 w-44 border border-rose-500/40">
               <p className="font-bold text-rose-400 flex items-center gap-1">
-                <ShieldAlert className="w-3.5 h-3.5" /> PROXY FLAG WARNING
+                <ShieldAlert className="w-3.5 h-3.5" /> PROXY ATTEMPT BLOCKED
               </p>
-              <p className="mt-1">SSID mismatch registered</p>
-              <p>GPS delta: 1.2km [REJECTED]</p>
-              <p className="text-[7.5px] text-neutral-400">Token hash expired</p>
+              <p className="mt-1">Wrong Wi-Fi network detected</p>
+              <p>Location is 1.2km away — rejected</p>
+              <p className="text-[7.5px] text-neutral-400">QR code already expired</p>
             </div>
           )}
 
@@ -484,7 +488,7 @@ export default function Landing() {
           <div className="lg:col-span-6 space-y-8 text-left pointer-events-auto">
             <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-lg border border-purple-500/15 bg-white/80 shadow-xs font-mono text-[10px] text-purple-700">
               <Activity className="w-3.5 h-3.5 animate-pulse text-purple-600" />
-              <span>RADAR MONITOR: geofence perimeter sweep active...</span>
+              <span>LIVE: Campus attendance tracking is active</span>
             </div>
 
             <h1 className="font-display text-5xl sm:text-7xl font-black text-[#1c1a22] tracking-tight leading-none">
@@ -496,7 +500,7 @@ export default function Landing() {
             </h1>
 
             <p className="max-w-md text-neutral-500 text-sm sm:text-base leading-relaxed">
-              Hover over the active GPS beacons on the live campus radar. PresenceX verifies device binding, local SSID connections, and geographic delta checks to secure attendance.
+              Hover over the live student pins on the campus map. PresenceX confirms your physical presence using GPS location, Wi-Fi connection, and a unique time-limited QR code.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
@@ -625,28 +629,28 @@ export default function Landing() {
                       {scanStep === "scanning" && (
                         <div className="space-y-2 flex flex-col items-center animate-pulse">
                           <ScanLine className="w-8 h-8 text-purple-400" />
-                          <p className="text-[8.5px] font-mono text-purple-400">Decoding token...</p>
+                          <p className="text-[8.5px] font-mono text-purple-400">Reading QR code...</p>
                         </div>
                       )}
 
                       {scanStep === "geofencing" && (
                         <div className="space-y-2 flex flex-col items-center">
                           <MapPin className="w-8 h-8 text-purple-400 animate-bounce" />
-                          <p className="text-[9.5px] font-bold text-white">Verifying GPS...</p>
+                          <p className="text-[9.5px] font-bold text-white">Checking your location...</p>
                         </div>
                       )}
 
                       {scanStep === "wifi" && (
                         <div className="space-y-2 flex flex-col items-center">
                           <Wifi className="w-8 h-8 text-blue-400 animate-pulse" />
-                          <p className="text-[9.5px] font-bold text-white">Matching Subnet...</p>
+                          <p className="text-[9.5px] font-bold text-white">Checking Wi-Fi network...</p>
                         </div>
                       )}
 
                       {scanStep === "face" && (
                         <div className="space-y-2 flex flex-col items-center">
                           <UserCheck className="w-8 h-8 text-indigo-400" />
-                          <p className="text-[9.5px] font-bold text-white">Identity Match...</p>
+                          <p className="text-[9.5px] font-bold text-white">Confirming identity...</p>
                         </div>
                       )}
 
@@ -670,7 +674,7 @@ export default function Landing() {
             <div className="lg:col-span-4 bg-[#121018] border border-white/5 rounded-2xl p-5 shadow-2xl font-mono text-[9px] flex flex-col justify-between hover:scale-[1.01] transition-transform">
               <div>
                 <div className="flex justify-between items-center border-b border-white/5 pb-3 mb-4">
-                  <span className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">Step 03 // DB Write</span>
+                  <span className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">Step 03 // Attendance Saved</span>
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                 </div>
 
@@ -684,8 +688,8 @@ export default function Landing() {
               </div>
 
               <div className="border-t border-white/5 pt-3 mt-4 text-neutral-500 flex justify-between">
-                <span>DATABASE: POSTGRESQL</span>
-                <span>WS_STREAM: OK</span>
+                <span>RECORDS: SAVED</span>
+                <span>LIVE SYNC: ACTIVE</span>
               </div>
             </div>
 
@@ -693,7 +697,7 @@ export default function Landing() {
 
           {/* Roster logs below */}
           <div className="mt-8 border-t border-black/5 pt-6">
-            <p className="text-[10px] font-mono text-neutral-400 uppercase font-bold tracking-wider mb-4">Broadcast Event Roster</p>
+            <p className="text-[10px] font-mono text-neutral-400 uppercase font-bold tracking-wider mb-4">Today's Attendance Roster</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
               {students.map((st) => (
                 <div key={st.id} className="bg-white/80 backdrop-blur-xs border border-black/5 p-3 rounded-xl flex items-center justify-between hover:shadow-xs transition-shadow">
@@ -724,14 +728,14 @@ export default function Landing() {
               <div>
                 <div className="flex items-center gap-2 mb-6">
                   <Sliders className="w-5 h-5 text-purple-600" />
-                  <span className="text-xs font-bold uppercase tracking-widest text-[#1c1a22] font-mono">Gateway Policy Panel</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#1c1a22] font-mono">Attendance Settings</span>
                 </div>
 
                 <h2 className="font-display text-2xl font-black text-[#1c1a22] mb-2 leading-tight">
-                  Rule Configuration Deck
+                  Customize Your Classroom
                 </h2>
                 <p className="text-neutral-500 text-xs mb-8">
-                  Adjust target validation bounds on the hardware dials below to update active compile specifications.
+                  Use the sliders below to set how long codes stay valid and how far students can be from the classroom.
                 </p>
 
                 <div className="space-y-8">
@@ -739,7 +743,7 @@ export default function Landing() {
                   {/* Slider 1: Expiry */}
                   <div className="bg-[#faf9f6] p-4 rounded-xl border border-black/5">
                     <div className="flex justify-between items-center text-xs font-bold text-neutral-800 mb-3">
-                      <span className="flex items-center gap-1.5"><QrCode className="w-4 h-4 text-purple-600" /> QR Key Refresh</span>
+                      <span className="flex items-center gap-1.5"><QrCode className="w-4 h-4 text-purple-600" /> Refresh Rate</span>
                       <span className="text-purple-600 font-mono bg-purple-500/5 px-2 py-0.5 rounded border border-purple-500/10">{qrExpirySlider}s</span>
                     </div>
                     <div className="relative flex items-center">
@@ -755,13 +759,13 @@ export default function Landing() {
                         className="w-full accent-purple-600 bg-neutral-200 rounded-lg h-1.5 cursor-pointer"
                       />
                     </div>
-                    <p className="text-[9px] text-neutral-400 mt-2 font-mono">AES-256 rotating sliding window duration</p>
+                    <p className="text-[9px] text-neutral-400 mt-2 font-mono">Code changes every {qrExpirySlider} seconds to block screenshots</p>
                   </div>
 
                   {/* Slider 2: Geofence */}
                   <div className="bg-[#faf9f6] p-4 rounded-xl border border-black/5 space-y-4">
                     <div className="flex justify-between items-center text-xs font-bold text-neutral-800">
-                      <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-blue-600" /> GPS Geofence Range</span>
+                      <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-blue-600" /> Proximity Range</span>
                       <span className="text-blue-600 font-mono bg-blue-500/5 px-2 py-0.5 rounded border border-blue-500/10">{geofenceSlider}m</span>
                     </div>
                     <div className="relative flex items-center">
@@ -779,7 +783,7 @@ export default function Landing() {
                     </div>
 
                     <div className="bg-white rounded-lg border border-black/5 h-28 flex items-center justify-center relative overflow-hidden">
-                      <span className="text-[7.5px] font-mono text-neutral-400 absolute top-2 left-2">GEOFENCE SIMULATION FIELD</span>
+                      <span className="text-[7.5px] font-mono text-neutral-400 absolute top-2 left-2">ZONE PREVIEW</span>
 
                       <div className="w-3.5 h-3.5 bg-blue-500 rounded-full border border-white z-10 flex items-center justify-center shadow-md">
                         <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
@@ -803,7 +807,7 @@ export default function Landing() {
               </div>
 
               <span className="text-[9.5px] font-mono text-neutral-400 block border-t border-black/5 pt-3 mt-4">
-                Dails linked via React state engines to the API specification.
+                Settings update the live preview in real-time.
               </span>
             </div>
 
@@ -817,79 +821,66 @@ export default function Landing() {
                     className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all cursor-pointer ${activeCodeTab === "json" ? "bg-white/10 text-purple-300 font-bold" : "text-neutral-500 hover:text-white"
                       }`}
                   >
-                    config.json
+                    Attendance Settings
                   </button>
                   <button
                     onClick={() => setActiveCodeTab("typescript")}
                     className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all cursor-pointer ${activeCodeTab === "typescript" ? "bg-white/10 text-purple-300 font-bold" : "text-neutral-500 hover:text-white"
                       }`}
                   >
-                    verify_hook.ts
+                    Attendance System
                   </button>
                 </div>
                 <div className="flex items-center gap-1.5 text-neutral-500 font-mono text-[9px]">
                   <Code className="w-3.5 h-3.5 text-purple-400" />
-                  <span>COMPILE: READY</span>
+                  <span>PREVIEW: ACTIVE</span>
                 </div>
               </div>
 
               <div className="p-6 font-mono text-xs overflow-x-auto text-purple-300/90 leading-relaxed flex-1">
                 {activeCodeTab === "json" ? (
                   <pre>
-                    {`{
-  "college": {
-    "slug": "iitd",
-    "name": "IIT Delhi Campus"
-  },
-  "attendance_policy": {
-    "allow_bypass": false,
-    "geofence": {
-      "enabled": true,
-      "radius_meters": ${geofenceSlider}
-    },
-    "network": {
-      "verify_bssid": true,
-      "campus_ssid": "IITD_CAMPUS_WIFI"
-    },
-    "qr_security": {
-      "algorithm": "SHA256-HMAC",
-      "refresh_seconds": ${qrExpirySlider}
-    }
-  }
-}`}
+                    {`// Your current attendance settings
+
+  ✔ Classroom Zone
+     Students must be within ${geofenceSlider} metres
+     of the class to mark attendance.
+
+  ✔ QR Code Security
+     Code refreshes every ${qrExpirySlider} seconds.
+     Screenshots are automatically rejected.
+
+  ✔ Wi-Fi Verification
+     Student must be on campus network.
+
+  ✔ Proxy Prevention: ON
+     Duplicate scans are blocked.`}
                   </pre>
                 ) : (
                   <pre>
-                    {`// API Route verification check
-import { verifyGPSRange, fetchToken } from "@presencex/core";
+                    {`// How attendance is verified — step by step
 
-export async function verifyScan(payload: ScanPayload) {
-  const currentToken = await fetchToken(payload.sessionId);
-  
-  // Verify dynamic code refresh time window [Limit: ${qrExpirySlider}s]
-  if (payload.qrToken !== currentToken) {
-    throw new SecurityException("Token expired");
-  }
+STEP 1: Student opens PresenceX app
+  → App shows a time-limited QR code
 
-  // Verify client geofence coordinates [Limit: ${geofenceSlider}m]
-  const isWithinBounds = await verifyGPSRange(
-    payload.coordinates, 
-    ${geofenceSlider}
-  );
-  
-  if (!isWithinBounds) {
-    throw new SecurityException("Outside authorized boundaries");
-  }
+STEP 2: Teacher starts the session
+  → QR code refreshes every ${qrExpirySlider} seconds
 
-  return { status: "Verified" };
-}`}
+STEP 3: Student scans the QR code
+  → GPS checked: within ${geofenceSlider}m of class? YES
+  → Wi-Fi checked: on campus network? YES
+  → Identity matched to student profile? YES
+
+STEP 4: Attendance saved instantly
+  → Teacher sees the update in real time
+  → Student gets a confirmation notification`}
                   </pre>
                 )}
               </div>
 
               <div className="bg-black/20 border-t border-white/5 px-6 py-3 flex justify-between items-center text-[9px] text-neutral-500 font-mono">
-                <span>UTF-8 Schema</span>
-                <span>Ln 14, Col 32</span>
+                <span>UTF-8</span>
+                <span>LIVE</span>
               </div>
             </div>
 
@@ -902,12 +893,12 @@ export async function verifyScan(payload: ScanPayload) {
         <div className="mx-auto max-w-7xl px-6">
 
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-xs font-bold uppercase tracking-widest text-purple-600 font-mono">System Blueprint Schema</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-purple-600 font-mono">How It Works</span>
             <h2 className="font-display text-3xl font-extrabold text-[#1c1a22] mt-2 sm:text-4xl">
-              Microservice Architecture Explorer
+              Everything You Need, All in One Place
             </h2>
             <p className="text-neutral-500 text-sm mt-3">
-              Explore our core verification matrix and API gateways. Click through the categories and nodes to inspect microservice telemetry, latencies, and Postgres storage.
+              Explore all the powerful features PresenceX offers. Click a category on the left and pick a feature to see what it does.
             </p>
           </div>
 
@@ -915,14 +906,14 @@ export async function verifyScan(payload: ScanPayload) {
 
             {/* Category Navigation Bar (Left Column - Asymmetric Tab design) */}
             <div className="lg:col-span-3 flex flex-col gap-3 justify-start">
-              <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest font-bold block px-2 mb-2">SERVICE DIRECTORY</span>
+              <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest font-bold block px-2 mb-2">CATEGORIES</span>
               {ARCHITECTURE_GROUPS.map((group) => (
                 <button
                   key={group.id}
                   onClick={() => handleGroupSelect(group.id)}
                   className={`w-full text-left px-5 py-4 rounded-xl border font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-between cursor-pointer ${activeGroup === group.id
-                      ? "bg-[#1c1a22] text-white border-transparent shadow-lg scale-[1.02]"
-                      : "bg-white hover:bg-neutral-50 text-neutral-500 border-black/5"
+                    ? "bg-[#1c1a22] text-white border-transparent shadow-lg scale-[1.02]"
+                    : "bg-white hover:bg-neutral-50 text-neutral-500 border-black/5"
                     }`}
                 >
                   <span>{group.label}</span>
@@ -937,7 +928,7 @@ export async function verifyScan(payload: ScanPayload) {
               {/* Interactive Node Flowchart (Left Panel inside details block) */}
               <div className="md:col-span-7 bg-white rounded-2xl border border-black/5 p-6 flex flex-col justify-between">
                 <div>
-                  <span className="text-[9px] font-mono text-neutral-500 uppercase tracking-wider block mb-4">LOGICAL SERVICE PIPELINE (CLICK A NODE)</span>
+                  <span className="text-[9px] font-mono text-neutral-500 uppercase tracking-wider block mb-4">FEATURES</span>
 
                   {/* Visual Node Flow Layout */}
                   <div className="flex flex-col gap-4 relative">
@@ -946,8 +937,8 @@ export async function verifyScan(payload: ScanPayload) {
                         <button
                           onClick={() => setActiveModule(mod)}
                           className={`w-full p-4.5 rounded-xl border flex items-center justify-between transition-all cursor-pointer ${activeModule.id === mod.id
-                              ? "border-purple-600 bg-purple-500/5 text-purple-950 font-bold shadow-xs ring-1 ring-purple-600/30"
-                              : "border-black/5 bg-[#faf9f6] text-neutral-600 hover:border-neutral-300"
+                            ? "border-purple-600 bg-purple-500/5 text-purple-950 font-bold shadow-xs ring-1 ring-purple-600/30"
+                            : "border-black/5 bg-[#faf9f6] text-neutral-600 hover:border-neutral-300"
                             }`}
                         >
                           <div className="flex items-center gap-3.5 text-left">
@@ -957,7 +948,7 @@ export async function verifyScan(payload: ScanPayload) {
                             </div>
                             <div>
                               <h4 className="text-xs font-bold">{mod.title}</h4>
-                              <span className="text-[8px] font-mono text-neutral-400 uppercase tracking-wider">{mod.code}</span>
+                              <span className="text-[8px] font-mono text-neutral-400 uppercase tracking-wider">Feature</span>
                             </div>
                           </div>
 
@@ -975,7 +966,7 @@ export async function verifyScan(payload: ScanPayload) {
                 </div>
 
                 <div className="text-[9px] font-mono text-neutral-500 border-t border-black/5 pt-4 mt-6">
-                  Interactive schematic representing standard Docker swarm instances.
+                  Click any feature above to see a detailed description.
                 </div>
               </div>
 
@@ -984,40 +975,40 @@ export async function verifyScan(payload: ScanPayload) {
                 <div className="space-y-6">
                   <div className="flex justify-between items-center border-b border-white/10 pb-3">
                     <span className="text-purple-400 font-bold uppercase tracking-wider text-[9px] flex items-center gap-1">
-                      <Cpu className="w-3.5 h-3.5" /> METRICS READOUT
+                      <Cpu className="w-3.5 h-3.5" /> DETAILS
                     </span>
-                    <span className="bg-emerald-500/25 text-emerald-400 text-[8px] px-2 py-0.25 rounded border border-emerald-500/30">ONLINE</span>
+                    <span className="bg-emerald-500/25 text-emerald-400 text-[8px] px-2 py-0.25 rounded border border-emerald-500/30">ACTIVE</span>
                   </div>
 
                   <div className="space-y-4">
                     <div>
-                      <span className="text-neutral-500 block text-[9.5px]">MODULE TITLE</span>
+                      <span className="text-neutral-500 block text-[9.5px]">FEATURE NAME</span>
                       <span className="text-xs text-white font-bold font-sans">{activeModule.title}</span>
                     </div>
 
                     <div>
-                      <span className="text-neutral-500 block text-[9.5px]">API DEFINITION</span>
+                      <span className="text-neutral-500 block text-[9.5px]">WHAT IT DOES</span>
                       <p className="text-[9.5px] text-neutral-300 font-sans leading-relaxed">{activeModule.desc}</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 border-t border-white/5 pt-4">
                       <div>
-                        <span className="text-neutral-500 block text-[8px]">CORE DATASTORE</span>
+                        <span className="text-neutral-500 block text-[8px]">SPEED</span>
                         <span className="text-purple-300 font-bold flex items-center gap-1 mt-0.5">
-                          <Database className="w-3 h-3" /> {activeModule.dbType}
+                          <Zap className="w-3 h-3" /> {activeModule.latency}
                         </span>
                       </div>
                       <div>
-                        <span className="text-neutral-500 block text-[8px]">DOCKER EXPOSE</span>
-                        <span className="text-purple-300 font-bold mt-0.5 block">Port {activeModule.ports}</span>
+                        <span className="text-neutral-500 block text-[8px]">STATUS</span>
+                        <span className="text-emerald-400 font-bold mt-0.5 block">Online ✓</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="border-t border-white/10 pt-4 mt-6 flex justify-between text-[8px] text-neutral-500">
-                  <span>SWARM_INSTANCE: OK</span>
-                  <span>SSL: ACTIVE</span>
+                  <span>UPTIME: 99.9%</span>
+                  <span>SECURE: YES</span>
                 </div>
               </div>
 
@@ -1034,7 +1025,7 @@ export async function verifyScan(payload: ScanPayload) {
           <div className="text-center mb-16">
             <span className="text-xs font-bold uppercase tracking-widest text-purple-600 font-mono">Verified Endorsements</span>
             <h2 className="font-display text-3xl font-extrabold text-[#1c1a22] mt-2">
-              Academic Letters of Recommendation
+              Academic Feedback
             </h2>
           </div>
 
@@ -1042,14 +1033,14 @@ export async function verifyScan(payload: ScanPayload) {
 
             {/* Left Column: Organization Selector Tabs */}
             <div className="lg:col-span-4 flex flex-col gap-3 justify-center">
-              <span className="text-[9px] font-mono text-neutral-500 uppercase tracking-widest font-bold block px-2 mb-2">SELECTING INSTITUTION</span>
+              <span className="text-[9px] font-mono text-neutral-500 uppercase tracking-widest font-bold block px-2 mb-2">INSTITUTION</span>
               {TESTIMONIALS.map((t, idx) => (
                 <button
                   key={idx}
                   onClick={() => setCurrentTestimonial(idx)}
                   className={`w-full text-left px-5 py-4.5 rounded-xl border font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-between cursor-pointer ${currentTestimonial === idx
-                      ? "bg-[#1c1a22] text-white border-transparent shadow-lg scale-[1.02]"
-                      : "bg-white hover:bg-neutral-50 text-neutral-500 border-black/5"
+                    ? "bg-[#1c1a22] text-white border-transparent shadow-lg scale-[1.02]"
+                    : "bg-white hover:bg-neutral-50 text-neutral-500 border-black/5"
                     }`}
                 >
                   <div className="flex items-center gap-3">
@@ -1071,8 +1062,8 @@ export async function verifyScan(payload: ScanPayload) {
               {/* Memo Header */}
               <div className="border-b-2 border-double border-black/15 pb-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="font-mono text-[9px] text-neutral-500 leading-normal uppercase">
-                  <p>DEPT: ACADEMIC AFFAIRS & COMPLIANCE</p>
-                  <p>REF: REG-PRESENCE-2026</p>
+                  <p>REVIEW: FACULTY</p>
+                  <p>YEAR: 2026</p>
                 </div>
                 <div className="flex gap-1">
                   {[...Array(TESTIMONIALS[currentTestimonial].rating)].map((_, i) => (
@@ -1110,8 +1101,8 @@ export async function verifyScan(payload: ScanPayload) {
 
                 {/* Hand-signed security verification stamp */}
                 <div className="bg-purple-600/5 border border-purple-500/15 rounded-lg px-3 py-2 text-right font-mono text-[8px] text-purple-800 self-end sm:self-center">
-                  <p className="font-bold uppercase tracking-wider">PRESENCEX SIGNATURE SECURITY</p>
-                  <p className="text-neutral-500 mt-0.5">ID: verified-sha-a092de</p>
+                  <p className="font-bold uppercase tracking-wider">VERIFIED</p>
+                  <p className="text-neutral-500 mt-0.5">Authentic ✓</p>
                 </div>
 
               </div>
@@ -1122,151 +1113,87 @@ export async function verifyScan(payload: ScanPayload) {
         </div>
       </section>
 
-      {/* Code Specification Blocks - Interactive IDE Workbench */}
-      <section id="architecture" className="py-24 border-t border-black/5 bg-[#faf9f6]">
+      {/* How It Works - User Friendly Visual Section */}
+      <section id="architecture" className="py-24 border-t border-black/5 bg-white">
         <div className="mx-auto max-w-5xl px-6">
           <div className="text-center mb-16">
-            <span className="font-mono text-xs text-purple-600 font-bold uppercase">Developer Specification</span>
-            <h3 className="text-3xl font-extrabold text-neutral-800 mt-2">API & Schema Blueprint</h3>
-            <p className="text-neutral-500 text-sm mt-3">
-              Inspect database schema models and check-in validation API payloads inside our development workspace mock-up.
+            <span className="font-sans text-xs text-purple-600 font-bold uppercase tracking-widest">Simple & Secure</span>
+            <h3 className="text-3xl font-extrabold text-neutral-800 mt-2">How PresenceX Works</h3>
+            <p className="text-neutral-500 text-sm mt-3 max-w-lg mx-auto">
+              From the moment class starts to when attendance is saved — everything happens in seconds, automatically.
             </p>
           </div>
 
-          {/* VSCode Window container */}
-          <div className="bg-[#121018] rounded-3xl border border-white/5 shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-12 items-stretch min-h-[420px]">
+          {/* Step-by-step visual flow */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16 relative">
 
-            {/* Sidebar: File Tree Explorer (3 Cols) */}
-            <div className="hidden md:block md:col-span-3 border-r border-white/5 bg-black/20 p-5 font-mono text-[10px] text-neutral-400 select-none">
-              <span className="text-[9px] font-bold text-neutral-500 uppercase tracking-widest block mb-4">WORKSPACE EXPLORER</span>
-              <div className="space-y-3">
+            {/* Connecting dashed lines (desktop only) */}
+            <div className="hidden md:block absolute top-10 left-[12.5%] right-[12.5%] h-[2px] bg-gradient-to-r from-purple-200 via-indigo-200 to-blue-200 z-0" />
 
-                {/* Project Directory */}
-                <div className="pl-1">
-                  <span className="text-white font-bold">📂 presencex-core</span>
-                  <div className="pl-4 mt-2 space-y-2">
-
-                    {/* File 1: schema.prisma */}
-                    <button
-                      onClick={() => setActiveSchemaTab("prisma")}
-                      className={`w-full text-left flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors ${activeSchemaTab === "prisma" ? "text-purple-300 font-bold" : ""
-                        }`}
-                    >
-                      <span>📄</span> schema.prisma
-                    </button>
-
-                    {/* File 2: verifyGateway.ts */}
-                    <button
-                      onClick={() => setActiveSchemaTab("api")}
-                      className={`w-full text-left flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors ${activeSchemaTab === "api" ? "text-purple-300 font-bold" : ""
-                        }`}
-                    >
-                      <span>⚡</span> verifyGateway.ts
-                    </button>
-
-                  </div>
+            {[
+              {
+                step: "01",
+                icon: "🏫",
+                color: "bg-purple-100 text-purple-700",
+                ring: "ring-purple-200",
+                title: "Teacher Starts Class",
+                desc: "Teacher opens PresenceX and starts an attendance session. A unique QR code is instantly generated for the class."
+              },
+              {
+                step: "02",
+                icon: "📱",
+                color: "bg-indigo-100 text-indigo-700",
+                ring: "ring-indigo-200",
+                title: "Student Scans QR",
+                desc: "Student opens the app and scans the QR code shown on the classroom display. Takes less than 3 seconds."
+              },
+              {
+                step: "03",
+                icon: "🛡️",
+                color: "bg-blue-100 text-blue-700",
+                ring: "ring-blue-200",
+                title: "3 Checks Run Instantly",
+                desc: "PresenceX checks: ① Is student physically near the class? ② On campus Wi-Fi? ③ Is their identity confirmed?"
+              },
+              {
+                step: "04",
+                icon: "✅",
+                color: "bg-emerald-100 text-emerald-700",
+                ring: "ring-emerald-200",
+                title: "Attendance Marked!",
+                desc: "If all 3 checks pass, attendance is saved instantly. Teacher's dashboard updates live. Student gets a confirmation."
+              }
+            ].map((item) => (
+              <div key={item.step} className="relative z-10 flex flex-col items-center text-center gap-4">
+                <div className={`w-20 h-20 rounded-2xl ${item.color} ring-4 ${item.ring} flex items-center justify-center text-3xl shadow-sm`}>
+                  {item.icon}
                 </div>
-
-                <div className="pl-1 text-neutral-600">
-                  <p>📂 node_modules</p>
-                  <p>📄 package.json</p>
-                  <p>📄 tsconfig.json</p>
-                </div>
+                <span className="text-[9px] font-black font-mono text-neutral-400 uppercase tracking-widest">Step {item.step}</span>
+                <h4 className="text-sm font-extrabold text-neutral-800 leading-tight">{item.title}</h4>
+                <p className="text-xs text-neutral-500 leading-relaxed max-w-[180px]">{item.desc}</p>
               </div>
-            </div>
-
-            {/* Main Window Workspace: Tabs & Editor (9 Cols) */}
-            <div className="col-span-1 md:col-span-9 flex flex-col justify-between">
-
-              {/* Tab Bar Header */}
-              <div className="flex items-center justify-between bg-black/40 border-b border-white/5 px-4 py-2.5">
-                <div className="flex gap-2.5">
-                  <button
-                    onClick={() => setActiveSchemaTab("prisma")}
-                    className={`px-3.5 py-1.5 rounded-lg text-xs font-mono transition-all cursor-pointer flex items-center gap-1.5 ${activeSchemaTab === "prisma" ? "bg-white/10 text-purple-300 font-bold border-t border-purple-500" : "text-neutral-500 hover:text-white"
-                      }`}
-                  >
-                    <span>📄</span> schema.prisma
-                  </button>
-                  <button
-                    onClick={() => setActiveSchemaTab("api")}
-                    className={`px-3.5 py-1.5 rounded-lg text-xs font-mono transition-all cursor-pointer flex items-center gap-1.5 ${activeSchemaTab === "api" ? "bg-white/10 text-purple-300 font-bold border-t border-purple-500" : "text-neutral-500 hover:text-white"
-                      }`}
-                  >
-                    <span>⚡</span> verifyGateway.ts
-                  </button>
-                </div>
-                <span className="text-[8px] font-mono text-neutral-600 uppercase tracking-widest hidden sm:inline">IDE: PRODUCTION SHELL</span>
-              </div>
-
-              {/* Code Editor Body */}
-              <div className="p-6 font-mono text-xs overflow-x-auto text-purple-300/90 leading-relaxed flex-1 flex">
-
-                {/* Fake Code Line Numbers */}
-                <div className="text-neutral-600 select-none text-right pr-4 border-r border-white/5 mr-4 space-y-0.5">
-                  {[...Array(activeSchemaTab === "prisma" ? 14 : 11)].map((_, i) => (
-                    <div key={i}>{String(i + 1).padStart(2, '0')}</div>
-                  ))}
-                </div>
-
-                {/* Actual Syntax Highlighted Code block */}
-                <div className="flex-1">
-                  {activeSchemaTab === "prisma" ? (
-                    <pre dangerouslySetInnerHTML={{
-                      __html: `<span class="text-indigo-400">model</span> <span class="text-white">Session</span> {
-  <span class="text-purple-400">id</span>          <span class="text-blue-300">String</span>     <span class="text-purple-400">@id @default(uuid())</span>
-  <span class="text-purple-400">subjectCode</span> <span class="text-blue-300">String</span>
-  <span class="text-purple-400">startTime</span>   <span class="text-blue-300">DateTime</span>   <span class="text-purple-400">@default(now())</span>
-  <span class="text-purple-400">active</span>      <span class="text-blue-300">Boolean</span>    <span class="text-purple-400">@default(true)</span>
-  <span class="text-purple-400">geofenceLat</span> <span class="text-blue-300">Float</span>
-  <span class="text-purple-400">geofenceLng</span> <span class="text-blue-300">Float</span>
-  <span class="text-purple-400">checkins</span>    <span class="text-white">CheckIn[]</span>
-}
-
-<span class="text-indigo-400">model</span> <span class="text-white">CheckIn</span> {
-  <span class="text-purple-400">id</span>         <span class="text-blue-300">String</span>   <span class="text-purple-400">@id @default(uuid())</span>
-  <span class="text-purple-400">sessionId</span>  <span class="text-blue-300">String</span>
-  <span class="text-purple-400">studentId</span>  <span class="text-blue-300">String</span>
-  <span class="text-purple-400">timestamp</span>  <span class="text-blue-300">DateTime</span> <span class="text-purple-400">@default(now())</span>
-  <span class="text-purple-400">deviceId</span>   <span class="text-blue-300">String</span>   <span class="text-neutral-500">// Bound hardware hash</span>
-  <span class="text-purple-400">accuracy</span>   <span class="text-blue-300">Float</span>    <span class="text-neutral-500">// Distance offset (m)</span>
-}` }} />
-                  ) : (
-                    <pre dangerouslySetInnerHTML={{
-                      __html: `<span class="text-neutral-500">// API payload specifications</span>
-<span class="text-indigo-400">POST</span> <span class="text-emerald-300">/api/v1/attendance/verify</span>
-<span class="text-neutral-500">Headers: Authorization: Bearer &lt;jwt_token&gt;</span>
-<span class="text-white">Payload:</span> {
-  <span class="text-purple-400">"sessionId"</span>: <span class="text-emerald-400">"4a9d-bc32-1a2f"</span>,
-  <span class="text-purple-400">"qrToken"</span>: <span class="text-emerald-400">"PX-982-FXA"</span>,
-  <span class="text-purple-400">"coords"</span>: { <span class="text-purple-400">"lat"</span>: <span class="text-blue-300">12.971</span>, <span class="text-purple-400">"lng"</span>: <span class="text-blue-300">77.594</span> },
-  <span class="text-purple-400">"bssid"</span>: <span class="text-emerald-400">"00:0a:95:9d:68:16"</span>
-}
-
-<span class="text-white">Response: 200 OK</span> {
-  <span class="text-purple-400">"verified"</span>: <span class="text-blue-300">true</span>,
-  <span class="text-purple-400">"timestamp"</span>: <span class="text-emerald-400">"2026-07-17T10:42:00Z"</span>
-}` }} />
-                  )}
-                </div>
-              </div>
-
-              {/* Status Bar Footer */}
-              <div className="bg-black/40 border-t border-white/5 px-5 py-2 flex justify-between items-center text-[9px] text-neutral-500 font-mono select-none">
-                <div className="flex gap-4">
-                  <span className="text-purple-400">● main</span>
-                  <span>Prisma schema format</span>
-                </div>
-                <div className="flex gap-3">
-                  <span>UTF-8</span>
-                  <span>TypeScript</span>
-                  <span>LF</span>
-                </div>
-              </div>
-
-            </div>
-
+            ))}
           </div>
+
+          {/* Security highlights row */}
+          <div className="bg-[#faf9f6] rounded-3xl border border-black/5 p-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="text-center space-y-2">
+              <span className="text-2xl">🚫</span>
+              <h5 className="text-sm font-extrabold text-neutral-800">No Proxies Possible</h5>
+              <p className="text-xs text-neutral-500 leading-relaxed">A friend can't mark attendance for you. The app verifies your location, device, and identity — all at once.</p>
+            </div>
+            <div className="text-center space-y-2 border-y sm:border-y-0 sm:border-x border-black/5 py-6 sm:py-0 sm:px-6">
+              <span className="text-2xl">⚡</span>
+              <h5 className="text-sm font-extrabold text-neutral-800">Under 5 Seconds</h5>
+              <p className="text-xs text-neutral-500 leading-relaxed">The entire verification — location, Wi-Fi, identity — completes in under 5 seconds so class isn't disrupted.</p>
+            </div>
+            <div className="text-center space-y-2">
+              <span className="text-2xl">📊</span>
+              <h5 className="text-sm font-extrabold text-neutral-800">Always Up to Date</h5>
+              <p className="text-xs text-neutral-500 leading-relaxed">Teachers see attendance update live as students scan. No waiting, no paperwork, no manual counting.</p>
+            </div>
+          </div>
+
         </div>
       </section>
 
@@ -1276,17 +1203,17 @@ export async function verifyScan(payload: ScanPayload) {
 
           {/* Left Column: Help Center Copy & Search Mock */}
           <div className="lg:col-span-5 space-y-6">
-            <span className="text-xs font-bold uppercase tracking-widest text-purple-600 font-mono">System FAQ</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-purple-600 font-mono">FAQ</span>
             <h2 className="font-display text-4xl font-black text-[#1c1a22] leading-tight">
-              Got Questions?<br />We’ve Got Blueprints.
+              Got Questions?<br />We’ve Got Answers.
             </h2>
             <p className="text-neutral-500 text-xs leading-relaxed max-w-sm">
-              Search our deployment guidelines or click the modules on the right to read direct protocol checks.
+              Browse the most common questions below. Can't find what you need? Reach out to our support team anytime.
             </p>
 
             {/* Mock Search input */}
             <div className="bg-white border border-black/5 rounded-xl p-3 flex items-center justify-between shadow-xs max-w-sm">
-              <span className="text-neutral-400 text-xs pl-1">Search documentation...</span>
+              <span className="text-neutral-400 text-xs pl-1">Search questions...</span>
               <span className="bg-[#1c1a22] text-white text-[9px] font-bold px-2 py-1 rounded font-mono">⌘K</span>
             </div>
           </div>
@@ -1295,14 +1222,14 @@ export async function verifyScan(payload: ScanPayload) {
           <div className="lg:col-span-7 space-y-4">
             {[
               {
-                q: "How does the system operate with poor internet connectivity?",
-                a: "Verification occurs via public-key cryptography. Local hashes verify scans instantly even offline, and sync to the cloud database the moment the local network re-establishes.",
-                ref: "DOC-NET-401"
+                q: "What happens if a student has no internet during class?",
+                a: "No problem! The QR scan still works in low-connectivity areas. Your attendance is saved locally on the device and automatically uploaded as soon as internet is restored.",
+                ref: "TIP: Offline Mode"
               },
               {
-                q: "Can faculty manage records manually?",
-                a: "Yes. The instructor portals feature manual overrides to mark attendance status logs or adjust coordinates easily.",
-                ref: "DOC-PORTAL-02"
+                q: "Can the teacher mark attendance manually?",
+                a: "Yes. Teachers have a simple dashboard to manually mark or adjust any student's attendance — perfect for situations where a student forgot their phone or had a technical issue.",
+                ref: "TIP: Manual Override"
               }
             ].map((faq, index) => (
               <div key={index} className="bg-white border border-black/5 rounded-2xl p-5 hover:shadow-xs transition-shadow">
@@ -1341,41 +1268,41 @@ export async function verifyScan(payload: ScanPayload) {
               <span className="font-display font-black text-sm tracking-tight text-[#1c1a22]">PresenceX</span>
             </div>
             <p className="text-[#615c6b] text-[10px] leading-relaxed font-sans max-w-sm">
-              High-fidelity attendance verification framework. Securing physical rosters via localized GPS geofence checks and WiFi handshakes.
+              Smart attendance for colleges and universities. Students check in instantly with a QR scan — no proxies, no spreadsheets, no hassle.
             </p>
 
             {/* Status Beacon */}
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-600/10 border border-emerald-600/20 text-[8px] text-emerald-800 font-bold tracking-wider">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>SWARM STATUS: 100% OPERATIONAL</span>
+              <span>ALL SYSTEMS: 100% OPERATIONAL</span>
             </div>
           </div>
 
           {/* Col 2: Directory Links (3/12) */}
           <div className="md:col-span-3 space-y-5">
-            <span className="text-[9px] font-bold text-neutral-500 uppercase tracking-widest block">DIRECTORY</span>
+            <span className="text-[9px] font-bold text-neutral-500 uppercase tracking-widest block">NAVIGATE</span>
             <ul className="space-y-3 text-[#615c6b]">
-              <li><a href="#sandbox" className="hover:text-purple-700 transition-colors whitespace-nowrap">Sandbox Console</a></li>
-              <li><a href="#configurator" className="hover:text-purple-700 transition-colors whitespace-nowrap">Rule Configurator</a></li>
-              <li><a href="#modules" className="hover:text-purple-700 transition-colors whitespace-nowrap">Topology Modules</a></li>
-              <li><a href="#testimonials" className="hover:text-purple-700 transition-colors whitespace-nowrap">Recommendation Memos</a></li>
+              <li><a href="#sandbox" className="hover:text-purple-700 transition-colors whitespace-nowrap">Live Demo</a></li>
+              <li><a href="#configurator" className="hover:text-purple-700 transition-colors whitespace-nowrap">Settings Preview</a></li>
+              <li><a href="#modules" className="hover:text-purple-700 transition-colors whitespace-nowrap">Features</a></li>
+              <li><a href="#testimonials" className="hover:text-purple-700 transition-colors whitespace-nowrap">Reviews</a></li>
             </ul>
           </div>
 
           {/* Col 3: Specifications Specs (2/12) */}
           <div className="md:col-span-2 space-y-5">
-            <span className="text-[9px] font-bold text-neutral-500 uppercase tracking-widest block">SECURITY SPECS</span>
+            <span className="text-[9px] font-bold text-neutral-500 uppercase tracking-widest block">SECURITY</span>
             <ul className="space-y-3 text-[#615c6b]">
-              <li><a href="#architecture" className="hover:text-purple-700 transition-colors whitespace-nowrap">schema.prisma</a></li>
-              <li><a href="#architecture" className="hover:text-purple-700 transition-colors whitespace-nowrap">verifyGateway.ts</a></li>
-              <li><span className="text-neutral-400 block whitespace-nowrap">JWT Auth Core</span></li>
-              <li><span className="text-neutral-400 block whitespace-nowrap">Joi Validators</span></li>
+              <li><a href="#architecture" className="hover:text-purple-700 transition-colors whitespace-nowrap">Data Protection</a></li>
+              <li><a href="#architecture" className="hover:text-purple-700 transition-colors whitespace-nowrap">Proxy Detection</a></li>
+              <li><span className="text-neutral-400 block whitespace-nowrap">Secure Login</span></li>
+              <li><span className="text-neutral-400 block whitespace-nowrap">Input Validation</span></li>
             </ul>
           </div>
 
           {/* Col 4: Interactive Newsletter Terminal command (3/12) */}
           <div className="md:col-span-3 space-y-5">
-            <span className="text-[9px] font-bold text-neutral-500 uppercase tracking-widest block">NEWSLETTER CONSOLE</span>
+            <span className="text-[9px] font-bold text-neutral-500 uppercase tracking-widest block">STAY UPDATED</span>
 
             <form
               onSubmit={(e) => {
@@ -1388,9 +1315,9 @@ export async function verifyScan(payload: ScanPayload) {
               className="bg-white/80 border border-black/5 rounded-xl p-4 space-y-2.5 shadow-xs"
             >
               <div className="flex items-center gap-1.5 text-neutral-500">
-                <span>$</span>
-                <span className="text-purple-700 font-bold">presencex</span>
-                <span>join --email</span>
+                <span>📬</span>
+                <span className="text-purple-700 font-bold">Subscribe</span>
+                <span>for updates</span>
               </div>
 
               {newsletterStatus === "idle" ? (
@@ -1407,23 +1334,23 @@ export async function verifyScan(payload: ScanPayload) {
                     type="submit"
                     className="bg-[#1c1a22] hover:bg-neutral-800 text-white text-[8px] font-bold px-2.5 py-1 rounded-lg cursor-pointer transition-colors"
                   >
-                    RUN
+                    JOIN
                   </button>
                 </div>
               ) : (
                 <p className="text-emerald-700 text-[8.5px] font-bold">
-                  ✓ SUCCESS: Subscribed to logs.
+                  ✓ You're in! We'll keep you posted.
                 </p>
               )}
             </form>
-            <p className="text-[8px] text-neutral-500">Enter email and press RUN to subscribe.</p>
+            <p className="text-[8px] text-neutral-500">Enter your email and press JOIN to subscribe.</p>
           </div>
 
         </div>
 
         {/* Bottom copyright row */}
         <div className="mx-auto max-w-7xl px-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-neutral-500 text-[9px]">
-          <p>© {new Date().getFullYear()} PresenceX. All rights reserved. Platform architecture certified.</p>
+          <p>© {new Date().getFullYear()} PresenceX. All rights reserved. Smart attendance for modern institutions.</p>
           <div className="flex gap-6">
             <span className="cursor-not-allowed hover:text-purple-700 transition-colors">MIT License</span>
             <span className="cursor-not-allowed hover:text-purple-700 transition-colors">Terms of Service</span>
