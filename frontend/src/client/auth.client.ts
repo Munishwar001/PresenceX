@@ -5,6 +5,12 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+}
+
 export interface AuthUser {
   id: string;
   name: string;
@@ -16,6 +22,10 @@ export interface LoginResponse {
   user: AuthUser;
 }
 
+export interface RegisterResponse {
+  user: AuthUser;
+}
+
 export interface RefreshResponse {
   user: AuthUser;
 }
@@ -23,6 +33,10 @@ export interface RefreshResponse {
 class AuthClient {
   login(payload: LoginRequest) {
     return apiClient.post<LoginResponse>("/auth/login", payload);
+  }
+
+  register(payload: RegisterRequest) {
+    return apiClient.post<RegisterResponse>("/auth/register", payload);
   }
 
   refresh() {

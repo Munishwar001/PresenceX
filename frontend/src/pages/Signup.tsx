@@ -1,30 +1,36 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import { motion } from "framer-motion";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, User } from "lucide-react";
 import { useAuthStore } from "../store/auth.store";
 import { Spinner } from "../components/ui/spinner";
-import { Toggle } from "../components/ui/toggle";
+import { Checkbox } from "../components/ui/checkbox";
 import { AuthScene } from "../components/auth/AuthScene";
 import { SpotlightCard } from "../components/auth/SpotlightCard";
+import { PasswordStrengthMeter } from "../components/auth/PasswordStrengthMeter";
 import { fieldContainer, fieldItem } from "../components/auth/formMotion";
 
 interface FormErrors {
+  name?: string;
   email?: string;
   password?: string;
+  confirmPassword?: string;
+  terms?: string;
 }
 
-export default function Login() {
+export default function Signup() {
   const navigate = useNavigate();
-  const login = useAuthStore((state) => state.login);
+  const register = useAuthStore((state) => state.register);
   const refresh = useAuthStore((state) => state.refresh);
   const loading = useAuthStore((state) => state.loading);
 
   const [checkingSession, setCheckingSession] = useState(true);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [remember, setRemember] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [formError, setFormError] = useState("");
 
@@ -49,6 +55,10 @@ export default function Login() {
   const validate = () => {
     const nextErrors: FormErrors = {};
 
+    if (!name.trim()) {
+      nextErrors.name = "Name is required";
+    }
+
     if (!email.trim()) {
       nextErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -57,8 +67,18 @@ export default function Login() {
 
     if (!password) {
       nextErrors.password = "Password is required";
-    } else if (password.length < 6) {
-      nextErrors.password = "Password must be at least 6 characters";
+    } else if (password.length < 8) {
+      nextErrors.password = "Password must be at least 8 characters";
+    }
+
+    if (!confirmPassword) {
+      nextErrors.confirmPassword = "Confirm your password";
+    } else if (confirmPassword !== password) {
+      nextErrors.confirmPassword = "Passwords don't match";
+    }
+
+    if (!agreed) {
+      nextErrors.terms = "You need to accept the terms to continue";
     }
 
     setErrors(nextErrors);
@@ -71,7 +91,7 @@ export default function Login() {
 
     if (!validate()) return;
 
-    const success = await login(email, password);
+    const success = await register(name.trim(), email, password);
     if (success) {
       navigate("/dashboard");
     } else {
@@ -90,15 +110,15 @@ export default function Login() {
   return (
     <AuthScene
       logLines={[
-        "Requesting encrypted session handshake...",
-        "TLS channel established",
-        "Verifying credentials against SRV-AUTH-01...",
-        "Identity confirmed",
-        "Session token issued — access granted",
+        "Initializing workspace container...",
+        "Database schema provisioned",
+        "Creating admin session token...",
+        "Encryption keys generated",
+        "Workspace ready — deploy complete",
       ]}
       stats={[
-        { label: "LATENCY", value: "< 8ms" },
-        { label: "UPTIME", value: "99.9%" },
+        { label: "SETUP", value: "< 60s" },
+        { label: "REGION", value: "AP-SOUTH" },
       ]}
     >
       <div className="flex justify-center">
@@ -113,10 +133,10 @@ export default function Login() {
           >
             <motion.div variants={fieldItem}>
               <span className="mb-3 block font-mono text-[9px] font-bold tracking-widest text-purple-600 uppercase">
-                Step 01 // Access
+                Step 01 // Deploy
               </span>
-              <h2 className="font-display mb-1.5 text-2xl font-black tracking-tight text-[#1c1a22]">Sign in</h2>
-              <p className="text-sm text-neutral-500">Enter your credentials to access your account.</p>
+              <h2 className="font-display mb-1.5 text-2xl font-black tracking-tight text-[#1c1a22]">Create your account</h2>
+              <p className="text-sm text-neutral-500">Set up your workspace in under a minute.</p>
             </motion.div>
 
             {formError && (
@@ -131,8 +151,31 @@ export default function Login() {
             )}
 
             <motion.div variants={fieldItem} className="flex flex-col gap-1.5">
+              <label htmlFor="name" className="font-mono text-[10px] font-bold tracking-wider text-neutral-500 uppercase">
+                Full name
+              </label>
+              <div
+                className={`flex items-center gap-2.5 rounded-xl border bg-[#faf9f6] px-3.5 transition-colors focus-within:border-purple-600 focus-within:ring-2 focus-within:ring-purple-600/10 ${
+                  errors.name ? "border-rose-400" : "border-black/10"
+                }`}
+              >
+                <User className="h-4.5 w-4.5 shrink-0 text-neutral-400" />
+                <input
+                  id="name"
+                  type="text"
+                  autoComplete="name"
+                  placeholder="Jordan Lee"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="flex-1 border-none bg-transparent py-3 text-sm text-[#1c1a22] outline-none placeholder:text-neutral-400"
+                />
+              </div>
+              {errors.name && <span className="text-xs text-rose-500">{errors.name}</span>}
+            </motion.div>
+
+            <motion.div variants={fieldItem} className="flex flex-col gap-1.5">
               <label htmlFor="email" className="font-mono text-[10px] font-bold tracking-wider text-neutral-500 uppercase">
-                Email
+                Work email
               </label>
               <div
                 className={`flex items-center gap-2.5 rounded-xl border bg-[#faf9f6] px-3.5 transition-colors focus-within:border-purple-600 focus-within:ring-2 focus-within:ring-purple-600/10 ${
@@ -154,14 +197,9 @@ export default function Login() {
             </motion.div>
 
             <motion.div variants={fieldItem} className="flex flex-col gap-1.5">
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="font-mono text-[10px] font-bold tracking-wider text-neutral-500 uppercase">
-                  Password
-                </label>
-                <Link to="/forgot-password" className="text-[13px] font-semibold text-purple-600 no-underline hover:underline">
-                  Forgot password?
-                </Link>
-              </div>
+              <label htmlFor="password" className="font-mono text-[10px] font-bold tracking-wider text-neutral-500 uppercase">
+                Password
+              </label>
               <div
                 className={`flex items-center gap-2.5 rounded-xl border bg-[#faf9f6] px-3.5 transition-colors focus-within:border-purple-600 focus-within:ring-2 focus-within:ring-purple-600/10 ${
                   errors.password ? "border-rose-400" : "border-black/10"
@@ -171,8 +209,8 @@ export default function Login() {
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  placeholder="Enter your password"
+                  autoComplete="new-password"
+                  placeholder="Create a password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="flex-1 border-none bg-transparent py-3 text-sm text-[#1c1a22] outline-none placeholder:text-neutral-400"
@@ -186,11 +224,39 @@ export default function Login() {
                   {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
                 </button>
               </div>
+              <PasswordStrengthMeter password={password} />
               {errors.password && <span className="text-xs text-rose-500">{errors.password}</span>}
             </motion.div>
 
+            <motion.div variants={fieldItem} className="flex flex-col gap-1.5">
+              <label htmlFor="confirmPassword" className="font-mono text-[10px] font-bold tracking-wider text-neutral-500 uppercase">
+                Confirm password
+              </label>
+              <div
+                className={`flex items-center gap-2.5 rounded-xl border bg-[#faf9f6] px-3.5 transition-colors focus-within:border-purple-600 focus-within:ring-2 focus-within:ring-purple-600/10 ${
+                  errors.confirmPassword ? "border-rose-400" : "border-black/10"
+                }`}
+              >
+                <Lock className="h-4.5 w-4.5 shrink-0 text-neutral-400" />
+                <input
+                  id="confirmPassword"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  placeholder="Re-enter your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="flex-1 border-none bg-transparent py-3 text-sm text-[#1c1a22] outline-none placeholder:text-neutral-400"
+                />
+              </div>
+              {errors.confirmPassword && <span className="text-xs text-rose-500">{errors.confirmPassword}</span>}
+            </motion.div>
+
             <motion.div variants={fieldItem}>
-              <Toggle checked={remember} onChange={setRemember} label="Remember me" id="remember" />
+              <Checkbox checked={agreed} onChange={setAgreed} id="terms" error={!!errors.terms}>
+                I agree to the <span className="font-semibold text-[#1c1a22]">Terms of Service</span> and{" "}
+                <span className="font-semibold text-[#1c1a22]">Privacy Policy</span>.
+              </Checkbox>
+              {errors.terms && <span className="mt-1 block text-xs text-rose-500">{errors.terms}</span>}
             </motion.div>
 
             <motion.button
@@ -205,15 +271,15 @@ export default function Login() {
                 <Spinner />
               ) : (
                 <>
-                  <span>&gt;_</span> Sign in
+                  <span>&gt;_</span> Deploy account
                 </>
               )}
             </motion.button>
 
             <motion.p variants={fieldItem} className="text-center text-[13px] text-neutral-500">
-              New to PresenceX?{" "}
-              <Link to="/signup" className="font-semibold text-purple-600 no-underline hover:underline">
-                Create an account
+              Already have an account?{" "}
+              <Link to="/login" className="font-semibold text-purple-600 no-underline hover:underline">
+                Sign in
               </Link>
             </motion.p>
           </motion.form>

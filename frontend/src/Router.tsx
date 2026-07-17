@@ -1,10 +1,12 @@
 import { Route, Routes } from "react-router";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import DashboardHome from "./pages/DashboardHome";
 import Employees from "./pages/Employees";
 import Organisation from "./pages/Organisation";
+import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/protectedRoute";
 
 export default function Router() {
@@ -12,6 +14,7 @@ export default function Router() {
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />}>
           <Route index element={<DashboardHome />} />
@@ -19,6 +22,7 @@ export default function Router() {
           <Route path="organisation" element={<Organisation />} />
         </Route>
       </Route>
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

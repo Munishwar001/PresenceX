@@ -53,7 +53,7 @@ export default function Landing() {
               Sign in
             </Link>
             <Link
-              to="/login"
+              to="/signup"
               className="rounded-xl bg-linear-to-br from-brand-600 to-brand-400 px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
             >
               Get started
@@ -85,7 +85,7 @@ export default function Landing() {
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link
-                to="/login"
+                to="/signup"
                 className="rounded-xl bg-linear-to-br from-brand-600 to-brand-400 px-6 py-3 text-sm font-semibold text-white shadow-[0_20px_45px_-20px_rgba(126,20,255,0.45)] transition-opacity hover:opacity-90"
               >
                 Get started free
@@ -154,7 +154,7 @@ export default function Landing() {
                 Set up PresenceX for your team in minutes. No credit card required.
               </p>
               <Link
-                to="/login"
+                to="/signup"
                 className="mt-8 inline-block rounded-xl bg-white px-6 py-3 text-sm font-semibold text-brand-600 transition-opacity hover:opacity-90"
               >
                 Get started free
