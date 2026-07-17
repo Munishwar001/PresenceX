@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
+import { useAuthStore } from "../../../store/auth.store";
+import { Spinner } from "../spinner";
 
 const NAV_ITEMS = [
   { label: "Dashboard", icon: <GridIcon />, to: "/dashboard" },
-  { label: "Employees", icon: <UsersIcon /> },
+  { label: "Employees", icon: <UsersIcon />, to: "/dashboard/employees" },
   { label: "Attendance", icon: <CalendarIcon /> },
   { label: "Reports", icon: <ChartIcon /> },
   { label: "Organisation", icon: <BuildingIcon />, to: "/dashboard/organisation" },
@@ -18,7 +20,16 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ activeNav, onNavChange, open, onClose }: SidebarProps) {
+  const navigate = useNavigate();
+  const logout = useAuthStore((state) => state.logout);
   const [collapsed, setCollapsed] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    await logout();
+    navigate("/login");
+  };
 
   return (
     <>
@@ -106,12 +117,19 @@ export default function Sidebar({ activeNav, onNavChange, open, onClose }: Sideb
         </nav>
 
         <button
+          type="button"
+          onClick={handleLogout}
+          disabled={loggingOut}
           title={collapsed ? "Log out" : undefined}
-          className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-ink-500 transition-colors hover:bg-red-50 hover:text-red-600 ${
+          className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-ink-500 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60 ${
             collapsed ? "justify-center" : ""
           }`}
         >
-          <LogOutIcon />
+          {loggingOut ? (
+            <Spinner className="h-4.5 w-4.5 animate-spin rounded-full border-2 border-ink-200 border-t-red-600" />
+          ) : (
+            <LogOutIcon />
+          )}
           {!collapsed && <span>Log out</span>}
         </button>
       </aside>
