@@ -531,8 +531,8 @@ export default function Landing() {
 
           <div className="absolute inset-0 pointer-events-none opacity-40">
             <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-              <path d="M 280 200 C 400 200, 360 300, 480 300" stroke="#8b5cf6" strokeWidth="2" strokeDasharray="6,4" fill="none" className="animate-pulse" />
-              <path d="M 720 300 C 800 300, 820 200, 940 200" stroke="#3b82f6" strokeWidth="2" strokeDasharray="6,4" fill="none" />
+              <path d="M 280 200 C 400 200, 360 300, 480 300" stroke="#8b5cf6" strokeWidth="2" strokeDasharray="6,4" fill="none" className="animate-dash-flow" />
+              <path d="M 720 300 C 800 300, 820 200, 940 200" stroke="#3b82f6" strokeWidth="2" strokeDasharray="6,4" fill="none" className="animate-dash-flow-delayed" />
             </svg>
           </div>
 
