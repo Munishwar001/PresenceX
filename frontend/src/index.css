@@ -1,31 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  --font-mono: "Fira Code", monospace;
 
-  --color-brand-50: #f4f0ff;
-  --color-brand-100: #ede6ff;
-  --color-brand-400: #a566ff;
-  --color-brand-500: #863bff;
-  --color-brand-600: #7e14ff;
-  --color-accent-400: #47bfff;
+  --color-brand-50: #faf8ff;
+  --color-brand-100: #f3edff;
+  --color-brand-400: #8b5cf6;
+  --color-brand-500: #7c3aed;
+  --color-brand-600: #6d28d9;
+  --color-accent-400: #3b82f6;
 
-  --color-ink-900: #1a1523;
-  --color-ink-500: #6b647a;
-  --color-ink-300: #9b93ab;
-  --color-ink-200: #b0a8c0;
-  --color-ink-100: #e3ddef;
-  --color-ink-50: #fbfaff;
+  --color-ink-900: #181622;
+  --color-ink-800: #2a2735;
+  --color-ink-700: #423e52;
+  --color-ink-500: #736f86;
+  --color-ink-300: #a5a1b8;
+  --color-ink-200: #d1cedc;
+  --color-ink-100: #eae7f2;
+  --color-ink-50: #f6f5fa;
+}
+
+@layer utilities {
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  .animate-float-delayed {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: 3s;
+  }
+  .animate-laser {
+    animation: laser-sweep 3s ease-in-out infinite;
+  }
+  .bg-grid-pattern-warm {
+    background-size: 40px 40px;
+    background-image: 
+      linear-gradient(to right, rgba(124, 58, 237, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
+  }
+  .glass-light {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+  }
+  .terminal-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .terminal-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .terminal-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(124, 58, 237, 0.15);
+    border-radius: 4px;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes laser-sweep {
+  0%, 100% {
+    top: 0%;
+    opacity: 0.1;
+  }
+  50% {
+    top: 100%;
+    opacity: 1;
+  }
 }
 
 html,
 body,
 #root {
   height: 100%;
+  scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  background-color: #faf9f6; /* Premium Warm Oatmeal Background */
+  color: #1f1e24;
 }
