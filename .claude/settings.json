@@ -42,7 +42,10 @@
       "Bash(curl -s http://localhost:3000/health)",
       "Bash(npm run *)",
       "Bash(curl -s -o /dev/null -w \"index: %{http_code}\\\\n\" http://localhost:5173/)",
-      "Bash(curl -s http://localhost:5173/src/components/ui/sidebar/index.tsx -o /dev/null -w \"Sidebar transform: %{http_code}\\\\n\")"
+      "Bash(curl -s http://localhost:5173/src/components/ui/sidebar/index.tsx -o /dev/null -w \"Sidebar transform: %{http_code}\\\\n\")",
+      "Bash(curl -s -o /dev/null -w \"organisation route: %{http_code}\\\\n\" http://localhost:5173/dashboard/organisation)",
+      "Bash(curl -s http://localhost:5173/src/pages/Organisation.tsx -o /dev/null -w \"Organisation.tsx transform: %{http_code}\\\\n\")",
+      "Bash(curl -s http://localhost:5173/src/components/addOrganisationModal/index.tsx -o /dev/null -w \"AddOrganisationModal transform: %{http_code}\\\\n\")"
     ],
     "additionalDirectories": [
       "\\tmp"
