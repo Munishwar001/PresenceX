@@ -89,17 +89,9 @@ export default function Login() {
 
   return (
     <AuthScene
-      logLines={[
-        "Requesting encrypted session handshake...",
-        "TLS channel established",
-        "Verifying credentials against SRV-AUTH-01...",
-        "Identity confirmed",
-        "Session token issued — access granted",
-      ]}
-      stats={[
-        { label: "LATENCY", value: "< 8ms" },
-        { label: "UPTIME", value: "99.9%" },
-      ]}
+      panelTitle="Signing you in"
+      steps={["Checking your details", "Confirming it's you", "Getting your dashboard ready", "You're all set"]}
+      note="Trusted by 1,200+ teams to track attendance"
     >
       <div className="flex justify-center">
         <SpotlightCard className="w-full max-w-[420px] rounded-2xl">
@@ -112,11 +104,8 @@ export default function Login() {
             variants={fieldContainer}
           >
             <motion.div variants={fieldItem}>
-              <span className="mb-3 block font-mono text-[9px] font-bold tracking-widest text-purple-600 uppercase">
-                Step 01 // Access
-              </span>
               <h2 className="font-display mb-1.5 text-2xl font-black tracking-tight text-[#1c1a22]">Sign in</h2>
-              <p className="text-sm text-neutral-500">Enter your credentials to access your account.</p>
+              <p className="text-sm text-neutral-500">Enter your email and password to continue.</p>
             </motion.div>
 
             {formError && (
@@ -201,13 +190,7 @@ export default function Login() {
               whileTap={{ scale: 0.98 }}
               className="flex h-[46px] items-center justify-center gap-2 rounded-xl border border-white/15 bg-[#1c1a22] text-xs font-extrabold tracking-wider text-white uppercase shadow-xs transition-colors hover:not-disabled:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {loading ? (
-                <Spinner />
-              ) : (
-                <>
-                  <span>&gt;_</span> Sign in
-                </>
-              )}
+              {loading ? <Spinner /> : "Sign in"}
             </motion.button>
 
             <motion.p variants={fieldItem} className="text-center text-[13px] text-neutral-500">

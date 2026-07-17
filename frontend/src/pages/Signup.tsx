@@ -109,17 +109,9 @@ export default function Signup() {
 
   return (
     <AuthScene
-      logLines={[
-        "Initializing workspace container...",
-        "Database schema provisioned",
-        "Creating admin session token...",
-        "Encryption keys generated",
-        "Workspace ready — deploy complete",
-      ]}
-      stats={[
-        { label: "SETUP", value: "< 60s" },
-        { label: "REGION", value: "AP-SOUTH" },
-      ]}
+      panelTitle="Setting things up"
+      steps={["Creating your workspace", "Saving your details", "Getting everything ready", "Almost done"]}
+      note="Takes less than a minute to get started"
     >
       <div className="flex justify-center">
         <SpotlightCard className="w-full max-w-[420px] rounded-2xl">
@@ -132,9 +124,6 @@ export default function Signup() {
             variants={fieldContainer}
           >
             <motion.div variants={fieldItem}>
-              <span className="mb-3 block font-mono text-[9px] font-bold tracking-widest text-purple-600 uppercase">
-                Step 01 // Deploy
-              </span>
               <h2 className="font-display mb-1.5 text-2xl font-black tracking-tight text-[#1c1a22]">Create your account</h2>
               <p className="text-sm text-neutral-500">Set up your workspace in under a minute.</p>
             </motion.div>
@@ -267,13 +256,7 @@ export default function Signup() {
               whileTap={{ scale: 0.98 }}
               className="flex h-[46px] items-center justify-center gap-2 rounded-xl border border-white/15 bg-[#1c1a22] text-xs font-extrabold tracking-wider text-white uppercase shadow-xs transition-colors hover:not-disabled:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {loading ? (
-                <Spinner />
-              ) : (
-                <>
-                  <span>&gt;_</span> Deploy account
-                </>
-              )}
+              {loading ? <Spinner /> : "Create account"}
             </motion.button>
 
             <motion.p variants={fieldItem} className="text-center text-[13px] text-neutral-500">

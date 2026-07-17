@@ -23,10 +23,13 @@ export function TerminalLog({ lines }: { lines: string[] }) {
   }, [visible]);
 
   return (
-    <div ref={containerRef} className="terminal-scrollbar h-[132px] space-y-1.5 overflow-y-auto pr-1 font-mono text-[10px]">
+    <div ref={containerRef} className="terminal-scrollbar h-[132px] space-y-2 overflow-y-auto pr-1 text-[12px]">
       {visible.map((line, i) => (
-        <div key={i} className="border-l border-purple-500/20 pl-2 text-neutral-400">
-          <span className="mr-1 font-bold text-purple-400">$</span> {line}
+        <div key={i} className="flex items-center gap-2 text-neutral-300">
+          <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-[9px] font-bold text-emerald-400">
+            ✓
+          </span>
+          {line}
         </div>
       ))}
     </div>
